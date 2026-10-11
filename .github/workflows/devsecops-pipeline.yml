@@ -11,8 +11,9 @@
 #    2) DAST: se levanta Juice Shop con Docker en http://localhost:3000,
 #       porque la URL del enunciado (juice-shop.herokuapp.com) está muerta.
 #    3) SCA: se conserva Snyk, que sí requiere el secreto SNYK_TOKEN.
-#    4) SCA: antes de Snyk se ejecuta `npm ci`, porque el escaneo fallaba con
-#       "Missing node_modules folder" (Snyk no podía probar sin dependencias).
+#    4) SCA: se instalan las dependencias con `npm install --ignore-scripts`
+#       (sin scripts de compilación), porque Juice Shop exige Node.js 22+
+#       y NO usa `package-lock.json` (por eso `npm ci` fallaba siempre).
 # =====================================================================
 
 name: DevSecOps CI/CD Pipeline
@@ -59,10 +60,10 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
 
       - name: Instalar dependencias del proyecto
-        run: npm ci
+        run: npm install --ignore-scripts
 
       - name: Escaneo de Dependencias con Snyk (SCA)
         uses: snyk/actions/node@master
